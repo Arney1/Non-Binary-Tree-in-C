@@ -127,29 +127,26 @@ void Level_order(Isi_Tree X, int Maks_node) {
 /* IS : P terdefinisi */
 /* FS : Semua simpul P sudah ditampilkan secara Level Order */
 
-void PrintTreeRec(Isi_Tree P, int level, address node) {
+void PrintTreeRec(Isi_Tree P, int *level, address node) {
   if (node == nil || P[node].info == '\0')
     return;
-  int help = level;
-  if (help >= 2) {
-    int parent = P[node].ps_pr;
-    while (P[parent].ps_pr != 1) {
-      parent = P[parent].ps_pr;
+  if (*level >= 2) {
+    int ancestor = P[node].ps_pr;
+    bool hasSibling[*level - 1];
+    int ancestorCount = 0;
+    while (P[ancestor].ps_pr != nil) {
+      hasSibling[ancestorCount++] = (P[ancestor].ps_nb != nil);
+      ancestor = P[ancestor].ps_pr;
     }
-    if (P[parent].ps_nb == nil) {
-      printf("   ");
-    } else {
-      printf("│  ");
-    }
-
-    int temp = --help;
-    for (int i = 0; i < temp - 1; i++) {
-
-      printf("   ");
-      help--;
+    for (int i = ancestorCount - 1; i >= 0; i--) {
+      if (hasSibling[i]) {
+        printf("%s", "│  ");
+      } else {
+        printf("%s", "   ");
+      }
     }
   }
-  if (help > 0) {
+  if (*level > 0) {
     if (P[node].ps_nb != nil) {
       printf("├─ ");
     } else {
@@ -159,15 +156,15 @@ void PrintTreeRec(Isi_Tree P, int level, address node) {
   printf("%c\n", P[node].info);
   address child = P[node].ps_fs;
   while (child != nil) {
-
-    PrintTreeRec(P, level + 1, child);
+    int nextLevel = *level + 1;
+    PrintTreeRec(P, &nextLevel, child);
     child = P[child].ps_nb;
   }
 }
 
 void PrintTree(Isi_Tree P) {
   int level = 0;
-  PrintTreeRec(P, level, 1);
+  PrintTreeRec(P, &level, 1);
 }
 /* IS : P terdefinisi */
 /* FS : Semua simpul P sudah ditulis ke layar */
